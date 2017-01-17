@@ -4,8 +4,8 @@
     <string name="pref_finger_action">单击动作</string>
     <string-array name="pref_action_list_titles">
         <item>无</item>
-        <item>返回Home</item>
         <item>返回</item>
+        <item>返回Home</item>
         <item>最近任务</item>
     </string-array>
 
@@ -15,4 +15,7 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+
+    <string name="description_accessibility">用于实现某些具体的指纹手势操作</string>
+    <string name="action_accessibility">在辅助功能中打开手势指纹开关</string>
 </resources>

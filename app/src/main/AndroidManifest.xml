@@ -2,15 +2,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.ymlion.fingerprint_gesture">
 
+    <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
+
     <application
             android:allowBackup="true"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/app_name"
-            android:name=".ui.AppContext"
+            android:name=".AppContext"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity
-                android:name=".SettingsActivity"
+                android:name=".ui.SettingsActivity"
                 android:icon="@mipmap/ic_launcher"
                 android:label="@string/app_name">
             <intent-filter>
@@ -19,6 +21,28 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <service
+                android:name=".service.ActionService"
+                android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" >
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+
+            <meta-data
+                    android:name="android.accessibilityservice"
+                    android:resource="@xml/accessibility_service"/>
+        </service>
+
+        <service
+                android:name=".service.FingerService"/>
+        
+        <receiver android:name=".receiver.BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

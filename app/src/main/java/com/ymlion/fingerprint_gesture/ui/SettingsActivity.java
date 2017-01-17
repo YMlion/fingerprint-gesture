@@ -1,15 +1,20 @@
-package com.ymlion.fingerprint_gesture;
+package com.ymlion.fingerprint_gesture.ui;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 
-import com.ymlion.fingerprint_gesture.ui.AppCompatPreferenceActivity;
+import com.ymlion.fingerprint_gesture.AppContext;
+import com.ymlion.fingerprint_gesture.R;
+import com.ymlion.fingerprint_gesture.constants.Action;
+import com.ymlion.fingerprint_gesture.util.BroadcastUtil;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -33,6 +38,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             String stringValue = value.toString();
 
             if (preference instanceof ListPreference) {
+                if (preference.getKey().equals("action_list")) {
+                    BroadcastUtil.send(AppContext.getInstance(), Action.GESTURE_CHANGED);
+                }
                 // For list preferences, look up the correct display value in
                 // the preference's 'entries' list.
                 ListPreference listPreference = (ListPreference) preference;
@@ -45,9 +53,19 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                                 : null);
 
             } else {
-                // For all other preferences, set the summary to the value's
-                // simple string representation.
-                preference.setSummary(stringValue);
+                if (preference.getKey().equals("fingerprint_status")) {
+                    if (value.equals(Boolean.FALSE)) {
+                        BroadcastUtil.send(AppContext.getInstance(), Action.FINGERPRINT_CLOSE);
+                    } else {
+                        Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        AppContext.getInstance().startActivity(intent);
+                    }
+                } else {
+                    // For all other preferences, set the summary to the value's
+                    // simple string representation.
+                    preference.setSummary(stringValue);
+                }
             }
             return true;
         }
@@ -77,10 +95,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         // Trigger the listener immediately with the preference's
         // current value.
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
+        if (preference instanceof ListPreference) {
+            sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+                    PreferenceManager
+                            .getDefaultSharedPreferences(preference.getContext())
+                            .getString(preference.getKey(), ""));
+        }
     }
 
     @Override
@@ -88,6 +108,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.pref_settings);
         bindPreferenceSummaryToValue(findPreference("action_list"));
+        bindPreferenceSummaryToValue(findPreference("fingerprint_status"));
     }
 
     /**

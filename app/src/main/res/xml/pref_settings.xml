@@ -7,11 +7,16 @@
             android:title="@string/app_name"
             android:defaultValue="false"/>
 
+    <Preference android:title="@string/action_accessibility"
+                android:dependency="fingerprint_status">
+        <intent android:action="android.settings.ACCESSIBILITY_SETTINGS"/>
+    </Preference>
+
     <ListPreference
             android:dependency="fingerprint_status"
             android:key="action_list"
             android:title="@string/pref_finger_action"
-            android:defaultValue="0"
+            android:defaultValue="-1"
             android:entries="@array/pref_action_list_titles"
             android:entryValues="@array/pref_action_list_values"
             android:negativeButtonText="@null"
