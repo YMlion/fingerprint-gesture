@@ -1,4 +1,4 @@
-package com.ymlion.fingerprint_gesture;
+package com.ymlion.fingerprint_gesture.ui;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
