@@ -4,8 +4,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * <p>广播工具类<p/>
@@ -20,7 +21,7 @@ public class BroadcastUtil {
         context.registerReceiver(receiver, filter);
     }
 
-    public static void register(Context context, BroadcastReceiver receiver, @NonNull String... actions) {
+    public static void register(Context context, BroadcastReceiver receiver, @NotNull String... actions) {
         IntentFilter filter = new IntentFilter();
         for (String a : actions) {
             filter.addAction(a);

@@ -1,21 +1,24 @@
 package com.ymlion.fingerprint_gesture.service;
 
+import android.Manifest;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.SystemClock;
-import android.support.annotation.Nullable;
-import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
-import android.support.v4.os.CancellationSignal;
 import android.util.Log;
 
 import com.ymlion.fingerprint_gesture.constants.Action;
 import com.ymlion.fingerprint_gesture.util.BroadcastUtil;
 import com.ymlion.fingerprint_gesture.util.SPUtil;
+
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Created by ymlion on 2017/1/16
@@ -27,7 +30,7 @@ public class FingerService extends Service {
     private static int CHECK_INTERVAL = 1000;
 
     private boolean isOpen = false;
-    private FingerprintManagerCompat fm;
+    private FingerprintManager fm;
     private CancellationSignal signal;
     private Handler handler;
     private BroadcastReceiver b;
@@ -121,7 +124,10 @@ public class FingerService extends Service {
         }
         isOpen = true;
         signal = new CancellationSignal();
-        fm.authenticate(null, 0, signal, new FingerprintManagerCompat.AuthenticationCallback() {
+        if (checkSelfPermission(Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        fm.authenticate(null, signal, 0, new FingerprintManager.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errMsgId, CharSequence errString) {
                 super.onAuthenticationError(errMsgId, errString);
@@ -135,7 +141,7 @@ public class FingerService extends Service {
             }
 
             @Override
-            public void onAuthenticationSucceeded(FingerprintManagerCompat.AuthenticationResult result) {
+            public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
                 BroadcastUtil.send(FingerService.this, getActionType());
                 stop();
                 super.onAuthenticationSucceeded(result);
@@ -162,7 +168,7 @@ public class FingerService extends Service {
 
     private void initManager() {
         if (fm == null) {
-            fm = FingerprintManagerCompat.from(this);
+            fm = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
         }
     }
 
