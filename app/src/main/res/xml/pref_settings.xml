@@ -22,4 +22,17 @@
             android:negativeButtonText="@null"
             android:positiveButtonText="@null"/>
 
+    <CheckBoxPreference
+            android:key="fingerprint_ignore_right"
+            android:title="@string/ignore_right"
+            android:defaultValue="false"/>
+
+    <CheckBoxPreference
+            android:key="fingerprint_icon_status"
+            android:title="@string/hide_app_icon"
+            android:defaultValue="false"/>
+
+    <Preference android:title="@string/about"
+                android:key="fingerprint_about"/>
+
 </PreferenceScreen>

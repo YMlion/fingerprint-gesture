@@ -18,4 +18,9 @@
 
     <string name="description_accessibility">用于实现某些具体的指纹手势操作</string>
     <string name="action_accessibility">在辅助功能中打开手势指纹开关</string>
+    <string name="app_icon">应用图标</string>
+    <string name="setting">设置</string>
+    <string name="about">关于</string>
+    <string name="hide_app_icon">隐藏应用图标</string>
+    <string name="ignore_right">指纹验证失败仍然执行动作</string>
 </resources>

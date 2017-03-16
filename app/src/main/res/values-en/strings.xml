@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">FingerprintGesture</string>
+    <string name="pref_finger_action">Tap action</string>
+    <string-array name="pref_action_list_titles">
+        <item>None</item>
+        <item>Back</item>
+        <item>Back Home</item>
+        <item>Recent Tasks</item>
+    </string-array>
+
+    <string name="description_accessibility">用于实现某些具体的指纹手势操作</string>
+    <string name="action_accessibility">在辅助功能中打开手势指纹开关</string>
+    <string name="app_icon">app icon</string>
+    <string name="setting">Setting</string>
+    <string name="about">About</string>
+    <string name="hide_app_icon">Hide app icon</string>
+    <string name="ignore_right">指纹验证失败仍然执行动作</string>
 </resources>

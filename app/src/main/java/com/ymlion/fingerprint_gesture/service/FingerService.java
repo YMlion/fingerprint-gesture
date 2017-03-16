@@ -5,6 +5,7 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.CancellationSignal;
@@ -63,7 +64,7 @@ public class FingerService extends Service {
                 }
             }
         }).start();
-        return START_STICKY;
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
@@ -130,6 +131,7 @@ public class FingerService extends Service {
         fm.authenticate(null, signal, 0, new FingerprintManager.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errMsgId, CharSequence errString) {
+                Log.d(TAG, "onAuthenticationError");
                 super.onAuthenticationError(errMsgId, errString);
                 CHECK_INTERVAL = 60000;
                 stop();
@@ -138,6 +140,7 @@ public class FingerService extends Service {
             @Override
             public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
                 super.onAuthenticationHelp(helpMsgId, helpString);
+                Log.d(TAG, "onAuthenticationHelp");
             }
 
             @Override
@@ -145,11 +148,19 @@ public class FingerService extends Service {
                 BroadcastUtil.send(FingerService.this, getActionType());
                 stop();
                 super.onAuthenticationSucceeded(result);
+                Log.d(TAG, "onAuthenticationSucceeded");
             }
 
             @Override
             public void onAuthenticationFailed() {
+                Log.d(TAG, "onAuthenticationFailed");
                 super.onAuthenticationFailed();
+                SharedPreferences sp = getSharedPreferences("com.ymlion.fingerprint_gesture_preferences", MODE_PRIVATE);
+                boolean act = sp.getBoolean("fingerprint_ignore_right", false);
+                if (act) {
+                    BroadcastUtil.send(FingerService.this, getActionType());
+                    stop();
+                }
             }
         }, null);
     }
@@ -173,8 +184,10 @@ public class FingerService extends Service {
     }
 
     private void stop() {
-        signal.cancel();
-        signal = null;
+        if (signal != null) {
+            signal.cancel();
+            signal = null;
+        }
         isOpen = false;
     }
 

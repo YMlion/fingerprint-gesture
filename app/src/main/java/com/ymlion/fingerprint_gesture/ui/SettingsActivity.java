@@ -1,8 +1,10 @@
 package com.ymlion.fingerprint_gesture.ui;
 
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -10,6 +12,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.util.Log;
 
 import com.ymlion.fingerprint_gesture.AppContext;
 import com.ymlion.fingerprint_gesture.R;
@@ -27,7 +30,10 @@ import com.ymlion.fingerprint_gesture.util.BroadcastUtil;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
-public class SettingsActivity extends PreferenceActivity {
+public class SettingsActivity extends PreferenceActivity implements Preference.OnPreferenceClickListener {
+
+    private static final String TAG = "SettingsActivity";
+
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
@@ -36,6 +42,7 @@ public class SettingsActivity extends PreferenceActivity {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
+            Log.d(TAG, "onPreferenceChange: " + stringValue);
 
             if (preference instanceof ListPreference) {
                 if (preference.getKey().equals("action_list")) {
@@ -53,18 +60,32 @@ public class SettingsActivity extends PreferenceActivity {
                                 : null);
 
             } else {
-                if (preference.getKey().equals("fingerprint_status")) {
-                    if (value.equals(Boolean.FALSE)) {
-                        BroadcastUtil.send(AppContext.getInstance(), Action.FINGERPRINT_CLOSE);
-                    } else {
-                        Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        AppContext.getInstance().startActivity(intent);
-                    }
-                } else {
-                    // For all other preferences, set the summary to the value's
-                    // simple string representation.
-                    preference.setSummary(stringValue);
+                switch (preference.getKey()) {
+                    case "fingerprint_status":
+                        if (value.equals(Boolean.FALSE)) {
+                            BroadcastUtil.send(AppContext.getInstance(), Action.FINGERPRINT_CLOSE);
+                        } else {
+                            Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            AppContext.getInstance().startActivity(intent);
+                        }
+                        break;
+                    case "fingerprint_icon_status":
+                        PackageManager p = AppContext.getInstance().getPackageManager();
+                        ComponentName componentName = ComponentName.createRelative(AppContext.getInstance(), "com.ymlion.fingerprint_gesture.ui.SplashActivity");
+                        if (value.equals(Boolean.FALSE)) {
+                            p.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+                        } else {
+                            p.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+                        }
+                        break;
+                    case "fingerprint_ignore_right":
+                        break;
+                    default:
+                        // For all other preferences, set the summary to the value's
+                        // simple string representation.
+                        preference.setSummary(stringValue);
+                        break;
                 }
             }
             return true;
@@ -109,6 +130,9 @@ public class SettingsActivity extends PreferenceActivity {
         addPreferencesFromResource(R.xml.pref_settings);
         bindPreferenceSummaryToValue(findPreference("action_list"));
         bindPreferenceSummaryToValue(findPreference("fingerprint_status"));
+        bindPreferenceSummaryToValue(findPreference("fingerprint_ignore_right"));
+        bindPreferenceSummaryToValue(findPreference("fingerprint_icon_status"));
+        findPreference("fingerprint_about").setOnPreferenceClickListener(this);
     }
 
     /**
@@ -117,5 +141,17 @@ public class SettingsActivity extends PreferenceActivity {
     @Override
     public boolean onIsMultiPane() {
         return isXLargeTablet(this);
+    }
+
+    @Override
+    public boolean onPreferenceClick(Preference preference) {
+        switch (preference.getKey()) {
+            case "fingerprint_about":
+                startActivity(new Intent(this, AboutActivity.class));
+                return true;
+            default:
+                break;
+        }
+        return false;
     }
 }
